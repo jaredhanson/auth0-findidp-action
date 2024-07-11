@@ -1,5 +1,5 @@
 {
-  "name": "find-idp-action",
+  "name": "auth0-findidp-action",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
