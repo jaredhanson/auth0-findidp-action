@@ -1,0 +1,24 @@
+{
+  "name": "find-idp-action",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "devDependencies": {
+    "chai": "^4.4.1",
+    "dotenv": "^16.4.5",
+    "make-node": "0.4.6",
+    "mocha": "^10.6.0",
+    "proxyquire": "^2.1.3",
+    "sinon": "^18.0.0",
+    "sinon-chai": "^3.7.0"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "address-rfc2821": "^2.1.2",
+    "auth0": "^4.7.0"
+  }
+}
