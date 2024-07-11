@@ -40,16 +40,11 @@ exports.onExecutePostIdentifier = async (event, api) => {
   // https://auth0.com/docs/authenticate/login/auth0-universal-login/identifier-first#define-home-realm-discovery-identity-providers
   
   var resp = await client.connections.getAll();
-  //console.log(resp);
-  //console.log(resp.data[0])
-  //console.log(resp.data[0].realms)
+  var connections = resp.data;
   
-  //console.log(parsed.host)
-  //console.log(resp.data[0].options.domain_aliases.includes(parsed.host));
-  
-  var conn = resp.data.find((e) => e.options.domain_aliases.includes(parsed.host));
-  if (conn) {
-    api.setConnection(conn.name);
+  var connection = connections.find((e) => e.options.domain_aliases.includes(parsed.host));
+  if (connection) {
+    api.setConnection(connection.name);
     return;
   }
   
