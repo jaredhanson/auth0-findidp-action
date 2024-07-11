@@ -72,6 +72,7 @@ describe('auth0-findidp-action', function() {
           clientId: 's6BhdRkqt3',
           clientSecret: '7Fjfp0ZBr1KtDRbnfVdmIw'
         });
+        expect(dnsPromises.resolve).to.have.been.calledOnceWith('example.com', 'MX');
         expect(api.setConnection).to.be.calledOnceWith('google-oauth2');
         done();
       })
@@ -94,9 +95,13 @@ describe('auth0-findidp-action', function() {
       } ]
     });
     var MockManagementClient = sinon.stub().returns(client);
+    var dnsPromises = {
+      resolve: sinon.spy()
+    };
     
     var action = $require('..', {
-      'auth0': { ManagementClient: MockManagementClient }
+      'auth0': { ManagementClient: MockManagementClient },
+      'dns': { promises: dnsPromises }
     });
     
     chai.auth0.action(action)
@@ -116,6 +121,7 @@ describe('auth0-findidp-action', function() {
           clientId: 's6BhdRkqt3',
           clientSecret: '7Fjfp0ZBr1KtDRbnfVdmIw'
         });
+        expect(dnsPromises.resolve).to.not.have.been.called;
         expect(api.setConnection).to.be.calledOnceWith('example-com');
         done();
       })
