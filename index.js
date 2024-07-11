@@ -42,7 +42,7 @@ exports.onExecutePostIdentifier = async (event, api) => {
   var resp = await client.connections.getAll();
   var connections = resp.data;
   
-  var connection = connections.find((e) => e.options.domain_aliases.includes(parsed.host));
+  var connection = connections.find((e) => e.options && e.options.domain_aliases && e.options.domain_aliases.includes(parsed.host));
   if (connection) {
     api.setConnection(connection.name);
     return;
@@ -51,6 +51,7 @@ exports.onExecutePostIdentifier = async (event, api) => {
   
   
   var records = await dns.resolve(parsed.host, 'MX');
+  //console.log(records);
   
   //records.sort(function(lhs, rhs) { console.log(rhs); return rhs.priority < lhs.priority; });
   

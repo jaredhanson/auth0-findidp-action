@@ -23,7 +23,62 @@ describe('auth0-findidp-action', function() {
     .catch(done);
   }); // should invoke sync callback
   
-  it.only('should set enterprise connection configured for home realm discovery', function(done) {
+  it('should set connection to Google when MX records resolve to Google Workspace', function(done) {
+    var client = new Object();
+    client.connections = new Object();
+    client.connections.getAll = sinon.stub().resolves({
+      data: [ {
+        id: 'con_cHABA2V0Xbiiopvo',
+        options: {
+          email: true,
+          calendar: false,
+          contacts: false
+        },
+        strategy: 'google-oauth2',
+        name: 'google-oauth2',
+        realms: [ 'google-oauth2' ]
+      } ]
+    });
+    var MockManagementClient = sinon.stub().returns(client);
+    var dnsPromises = {
+      resolve: sinon.stub().resolves([
+        { exchange: 'aspmx.l.google.com', priority: 1 },
+        { exchange: 'alt3.aspmx.l.google.com', priority: 10 },
+        { exchange: 'alt4.aspmx.l.google.com', priority: 10 },
+        { exchange: 'alt1.aspmx.l.google.com', priority: 5 },
+        { exchange: 'alt2.aspmx.l.google.com', priority: 5 }
+      ])
+    };
+    
+    var action = $require('..', {
+      'auth0': { ManagementClient: MockManagementClient },
+      'dns': { promises: dnsPromises }
+    });
+    
+    chai.auth0.action(action)
+      .api(function(api) {
+        sinon.spy(api)
+      })
+      .event(function(event) {
+        event.transaction = { identifier: 'alice@example.com' };
+        event.request = { hostname: 'example.auth0.com' };
+      })
+      .secret('AUTH0_CLIENT_ID', 's6BhdRkqt3')
+      .secret('AUTH0_CLIENT_SECRET', '7Fjfp0ZBr1KtDRbnfVdmIw')
+      .trigger('post-identifier')
+      .then(function(api) {
+        expect(MockManagementClient).to.have.been.calledOnceWith({
+          domain: 'example.auth0.com',
+          clientId: 's6BhdRkqt3',
+          clientSecret: '7Fjfp0ZBr1KtDRbnfVdmIw'
+        });
+        expect(api.setConnection).to.be.calledOnceWith('google-oauth2');
+        done();
+      })
+      .catch(done);
+  }); // should set enterprise connection configured for home realm discovery
+  
+  it('should set enterprise connection configured for home realm discovery', function(done) {
     var client = new Object();
     client.connections = new Object();
     client.connections.getAll = sinon.stub().resolves({
@@ -40,8 +95,9 @@ describe('auth0-findidp-action', function() {
     });
     var MockManagementClient = sinon.stub().returns(client);
     
-    var action = $require('..',
-      { 'auth0': { ManagementClient: MockManagementClient } });
+    var action = $require('..', {
+      'auth0': { ManagementClient: MockManagementClient }
+    });
     
     chai.auth0.action(action)
       .api(function(api) {
