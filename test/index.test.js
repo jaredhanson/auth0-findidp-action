@@ -10,7 +10,7 @@ describe('auth0-findidp-action', function() {
   it.skip('should do something', function(done) {
     chai.auth0.action(action)
     .event(function(event) {
-      event.transaction = { identifier: 'alice@gmail.com' };
+      event.transaction = { identifier: 'alice@foo.com' };
       event.request = {};
     })
     .secret('AUTH0_DOMAIN', process.env.AUTH0_DOMAIN)
@@ -23,8 +23,66 @@ describe('auth0-findidp-action', function() {
     .catch(done);
   }); // should invoke sync callback
   
+  it('should set connection to username-password when existing password-based account exists', function(done) {
+    var client = new Object();
+    client.usersByEmail = new Object();
+    client.usersByEmail.getByEmail = sinon.stub().resolves({
+      data: [ {
+        email: 'alice@example.com',
+        email_verified: false,
+        identities: [
+          {
+            connection: 'Username-Password-Authentication',
+            provider: 'auth0',
+            user_id: '9a3f88f67f9b90c5f1fd65e0',
+            isSocial: false
+          }
+        ],
+        name: 'alice@example.com',
+        nickname: 'alice',
+        user_id: 'auth0|9a3f88f67f9b90c5f1fd65e0'
+      } ]
+    });
+    client.connections = new Object();
+    client.connections.getAll = sinon.spy();
+    var MockManagementClient = sinon.stub().returns(client);
+    var dnsPromises = {
+      resolve: sinon.spy()
+    };
+    
+    var action = $require('..', {
+      'auth0': { ManagementClient: MockManagementClient },
+      'dns': { promises: dnsPromises }
+    });
+    
+    chai.auth0.action(action)
+      .api(function(api) {
+        sinon.spy(api)
+      })
+      .event(function(event) {
+        event.transaction = { identifier: 'alice@gmail.com' };
+        event.request = { hostname: 'example.auth0.com' };
+      })
+      .secret('AUTH0_CLIENT_ID', 's6BhdRkqt3')
+      .secret('AUTH0_CLIENT_SECRET', '7Fjfp0ZBr1KtDRbnfVdmIw')
+      .trigger('post-identifier')
+      .then(function(api) {
+        expect(MockManagementClient).to.have.been.calledOnceWith({
+          domain: 'example.auth0.com',
+          clientId: 's6BhdRkqt3',
+          clientSecret: '7Fjfp0ZBr1KtDRbnfVdmIw'
+        });
+        expect(dnsPromises.resolve).to.not.have.been.called;
+        expect(api.setConnection).to.be.calledOnceWith('Username-Password-Authentication');
+        done();
+      })
+      .catch(done);
+  }); // should set connection to username-password when existing password-based account exists
+  
   it('should set connection to Google when MX records resolve to Gmail', function(done) {
     var client = new Object();
+    client.usersByEmail = new Object();
+    client.usersByEmail.getByEmail = sinon.stub().resolves({ data: [] });
     client.connections = new Object();
     client.connections.getAll = sinon.stub().resolves({
       data: [ {
@@ -81,6 +139,8 @@ describe('auth0-findidp-action', function() {
   
   it('should set connection to Google when MX records resolve to Google Workspace', function(done) {
     var client = new Object();
+    client.usersByEmail = new Object();
+    client.usersByEmail.getByEmail = sinon.stub().resolves({ data: [] });
     client.connections = new Object();
     client.connections.getAll = sinon.stub().resolves({
       data: [ {
@@ -137,6 +197,8 @@ describe('auth0-findidp-action', function() {
   
   it('should set enterprise connection configured for home realm discovery', function(done) {
     var client = new Object();
+    client.usersByEmail = new Object();
+    client.usersByEmail.getByEmail = sinon.stub().resolves({ data: [] });
     client.connections = new Object();
     client.connections.getAll = sinon.stub().resolves({
       data: [ {

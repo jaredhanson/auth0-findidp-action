@@ -41,11 +41,24 @@ exports.onExecutePostIdentifier = async (event, api) => {
   });
   
   
+  // If we have an existing user with this identifier, route them to that connection
+  // This allows people wiht password-based accounts to continue to use them after findIDP has been turned on
+  // https://auth0.com/docs/manage-users/user-search/retrieve-users-with-get-users-by-email-endpoint
+  //
+  // TODO: should probably limit this to just password-based accounts, so external IDPs with an email don't override
+  var resp = await client.usersByEmail.getByEmail({ email: event.transaction.identifier });
+  var users = resp.data;
+  if (users.length != 0) {
+    api.setConnection(users[0].identities[0].connection);
+    return;
+  }
+  
   // Preserve home realm discovery
   // https://auth0.com/docs/authenticate/login/auth0-universal-login/identifier-first#define-home-realm-discovery-identity-providers
   
   var resp = await client.connections.getAll();
   var connections = resp.data;
+  //console.log(connections);
   
   var connection = connections.find((e) => e.options && e.options.domain_aliases && e.options.domain_aliases.includes(parsed.host));
   if (connection) {
