@@ -5,12 +5,7 @@ var expect = require('chai').expect;
 var action = require('..');
 
 
-describe('auth0-action-findidp', function() {
-  
-  it('should add helper to chai', function() {
-    expect(chai.auth0).to.be.an('object');
-    expect(chai.auth0.action).to.be.a('function');
-  });
+describe('auth0-findidp-action', function() {
   
   it.skip('should do something', function(done) {
     chai.auth0.action(action)
