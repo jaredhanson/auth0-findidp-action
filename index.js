@@ -4,6 +4,11 @@ var dns = require('dns').promises;
 
 
 const EXCHANGES = {
+  'gmail-smtp-in.l.google.com': 'google-oauth2',
+  'alt1.gmail-smtp-in.l.google.com': 'google-oauth2',
+  'alt2.gmail-smtp-in.l.google.com': 'google-oauth2',
+  'alt3.gmail-smtp-in.l.google.com': 'google-oauth2',
+  'alt4.gmail-smtp-in.l.google.com': 'google-oauth2',
   'aspmx.l.google.com': 'google-oauth2',
   'alt1.aspmx.l.google.com': 'google-oauth2',
   'alt2.aspmx.l.google.com': 'google-oauth2',

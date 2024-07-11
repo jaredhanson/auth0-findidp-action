@@ -10,7 +10,7 @@ describe('auth0-findidp-action', function() {
   it.skip('should do something', function(done) {
     chai.auth0.action(action)
     .event(function(event) {
-      event.transaction = { identifier: 'alice@example.com' };
+      event.transaction = { identifier: 'alice@gmail.com' };
       event.request = {};
     })
     .secret('AUTH0_DOMAIN', process.env.AUTH0_DOMAIN)
@@ -22,6 +22,62 @@ describe('auth0-findidp-action', function() {
     })
     .catch(done);
   }); // should invoke sync callback
+  
+  it('should set connection to Google when MX records resolve to Gmail', function(done) {
+    var client = new Object();
+    client.connections = new Object();
+    client.connections.getAll = sinon.stub().resolves({
+      data: [ {
+        id: 'con_cHABA2V0Xbiiopvo',
+        options: {
+          email: true,
+          calendar: false,
+          contacts: false
+        },
+        strategy: 'google-oauth2',
+        name: 'google-oauth2',
+        realms: [ 'google-oauth2' ]
+      } ]
+    });
+    var MockManagementClient = sinon.stub().returns(client);
+    var dnsPromises = {
+      resolve: sinon.stub().resolves([
+        { exchange: 'gmail-smtp-in.l.google.com', priority: 5 },
+        { exchange: 'alt3.gmail-smtp-in.l.google.com', priority: 30 },
+        { exchange: 'alt2.gmail-smtp-in.l.google.com', priority: 20 },
+        { exchange: 'alt4.gmail-smtp-in.l.google.com', priority: 40 },
+        { exchange: 'alt1.gmail-smtp-in.l.google.com', priority: 10 }
+      ])
+    };
+    
+    var action = $require('..', {
+      'auth0': { ManagementClient: MockManagementClient },
+      'dns': { promises: dnsPromises }
+    });
+    
+    chai.auth0.action(action)
+      .api(function(api) {
+        sinon.spy(api)
+      })
+      .event(function(event) {
+        event.transaction = { identifier: 'alice@gmail.com' };
+        event.request = { hostname: 'example.auth0.com' };
+      })
+      .secret('AUTH0_CLIENT_ID', 's6BhdRkqt3')
+      .secret('AUTH0_CLIENT_SECRET', '7Fjfp0ZBr1KtDRbnfVdmIw')
+      .trigger('post-identifier')
+      .then(function(api) {
+        expect(MockManagementClient).to.have.been.calledOnceWith({
+          domain: 'example.auth0.com',
+          clientId: 's6BhdRkqt3',
+          clientSecret: '7Fjfp0ZBr1KtDRbnfVdmIw'
+        });
+        expect(dnsPromises.resolve).to.have.been.calledOnceWith('gmail.com', 'MX');
+        expect(api.setConnection).to.be.calledOnceWith('google-oauth2');
+        done();
+      })
+      .catch(done);
+  }); // should set connection to Google when MX records resolve to Gmail
   
   it('should set connection to Google when MX records resolve to Google Workspace', function(done) {
     var client = new Object();
@@ -60,7 +116,7 @@ describe('auth0-findidp-action', function() {
         sinon.spy(api)
       })
       .event(function(event) {
-        event.transaction = { identifier: 'alice@example.com' };
+        event.transaction = { identifier: 'alice@acme.com' };
         event.request = { hostname: 'example.auth0.com' };
       })
       .secret('AUTH0_CLIENT_ID', 's6BhdRkqt3')
@@ -72,12 +128,12 @@ describe('auth0-findidp-action', function() {
           clientId: 's6BhdRkqt3',
           clientSecret: '7Fjfp0ZBr1KtDRbnfVdmIw'
         });
-        expect(dnsPromises.resolve).to.have.been.calledOnceWith('example.com', 'MX');
+        expect(dnsPromises.resolve).to.have.been.calledOnceWith('acme.com', 'MX');
         expect(api.setConnection).to.be.calledOnceWith('google-oauth2');
         done();
       })
       .catch(done);
-  }); // should set enterprise connection configured for home realm discovery
+  }); // should set connection to Google when MX records resolve to Google Workspace
   
   it('should set enterprise connection configured for home realm discovery', function(done) {
     var client = new Object();
