@@ -1,6 +1,6 @@
 const ManagementClient = require('auth0').ManagementClient;
 const Address = require('address-rfc2821').Address;
-var dns = require('dns').promises;
+const dns = require('dns').promises;
 
 
 const EXCHANGES = {
@@ -18,13 +18,12 @@ const EXCHANGES = {
 
 
 exports.onExecutePostIdentifier = async (event, api) => {
-  var parsed;
+  let address;
   
   try {
-    parsed = new Address(event.transaction.identifier);
-    //console.log(parsed);
+    address = new Address(event.transaction.identifier);
+    console.log(address);
   } catch (ex) {
-    //console.log(ex);
     return;
   }
   
@@ -65,7 +64,7 @@ exports.onExecutePostIdentifier = async (event, api) => {
   var connections = resp.data;
   //console.log(connections);
   
-  var connection = connections.find((e) => e.options && e.options.domain_aliases && e.options.domain_aliases.includes(parsed.host));
+  var connection = connections.find((e) => e.options && e.options.domain_aliases && e.options.domain_aliases.includes(address.host));
   if (connection) {
     api.setConnection(connection.name);
     return;
@@ -78,7 +77,7 @@ exports.onExecutePostIdentifier = async (event, api) => {
   
   
   // Use DNS MX records to determine the IDP for the domain.
-  var records = await dns.resolve(parsed.host, 'MX');
+  var records = await dns.resolve(address.host, 'MX');
   //console.log(records);
   
   //records.sort(function(lhs, rhs) { console.log(rhs); return rhs.priority < lhs.priority; });
