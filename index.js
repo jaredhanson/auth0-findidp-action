@@ -46,6 +46,11 @@ exports.onExecutePostIdentifier = async (event, api) => {
   // https://auth0.com/docs/manage-users/user-search/retrieve-users-with-get-users-by-email-endpoint
   //
   // TODO: should probably limit this to just password-based accounts, so external IDPs with an email don't override
+  
+  
+  // If the user already exists in the system, sign them in using the existing
+  // authentication method.
+  
   var resp = await client.usersByEmail.getByEmail({ email: event.transaction.identifier });
   var users = resp.data;
   if (users.length != 0) {
@@ -67,7 +72,12 @@ exports.onExecutePostIdentifier = async (event, api) => {
   }
   
   
+  // Discover the identity provider (IDP) for the user's domain.
   
+  // TODO: Implement support for WebFinger.
+  
+  
+  // Use DNS MX records to determine the IDP for the domain.
   var records = await dns.resolve(parsed.host, 'MX');
   //console.log(records);
   
