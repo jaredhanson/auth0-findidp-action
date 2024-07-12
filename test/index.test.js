@@ -246,16 +246,38 @@ describe('auth0-findidp-action', function() {
       .catch(done);
   }); // should set enterprise connection configured for home realm discovery
   
-  it.skip('should ignore phone numbers', function(done) {
-    chai.auth0.action(action)
-    .event(function(event) {
-      console.log('EVENT!');
-      event.transaction = { identifier: '(800) 555‑0175' };
-    })
-    .trigger('post-identifier', function(api) {
-      //expect(api.access).to.be.an('object');
-      done();
+  it('should ignore phone number identifier', function(done) {
+    var client = new Object();
+    client.usersByEmail = new Object();
+    client.usersByEmail.getByEmail = sinon.spy();
+    client.connections = new Object();
+    client.connections.getAll = sinon.spy();
+    var MockManagementClient = sinon.stub().returns(client);
+    var dnsPromises = {
+      resolve: sinon.spy()
+    };
+    
+    var action = $require('..', {
+      'auth0': { ManagementClient: MockManagementClient },
+      'dns': { promises: dnsPromises }
     });
-  }); // should invoke sync callback
+    
+    chai.auth0.action(action)
+      .api(function(api) {
+        sinon.spy(api)
+      })
+      .event(function(event) {
+        event.transaction = { identifier: '(800) 555‑0175' };
+      })
+      .trigger('post-identifier')
+      .then(function(api) {
+        expect(client.usersByEmail.getByEmail).to.not.have.been.called;
+        expect(client.connections.getAll).to.not.have.been.called;
+        expect(dnsPromises.resolve).to.not.have.been.called;
+        expect(api.setConnection).to.not.have.been.called;
+        done();
+      })
+      .catch(done);
+  }); // should ignore phone number identifier
   
 });
