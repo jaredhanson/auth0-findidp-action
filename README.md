@@ -18,3 +18,8 @@ employees to sign in using their corporate account introduce even more variation
 Identifier first login flows can streamline the sign in process.  The user is
 prompted to enter their email address, and are automatically directed to the
 easiest - and most secure - method for signing in.
+
+The inspiration for this flow comes from [Tim Bray](https://en.wikipedia.org/wiki/Tim_Bray)'s
+[Project findIDP](https://www.tbray.org/ongoing/When/201x/2013/06/07/Why-findIDP),
+itself inspired by [Blaine Cook](https://en.wikipedia.org/wiki/Blaine_Cook_(programmer))'s
+attempt at [fixing sign in](https://archive.ph/7BzFP) to (now defunct) Poetica.
