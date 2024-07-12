@@ -25,4 +25,6 @@ itself inspired by [Blaine Cook](https://en.wikipedia.org/wiki/Blaine_Cook_(prog
 attempt at [fixing sign in](https://archive.ph/7BzFP) to (now defunct) Poetica.
 The project, circa 2013, was an attempt to encourage this style of flow and offer
 it as a service [written in Go and running on App Engine](https://www.tbray.org/ongoing/When/201x/2013/06/14/FindIDP-Tech-Choice)
-([source code](https://github.com/google/favcolor-findidp)).
+([source code](https://github.com/google/favcolor-findidp)).  The project seems
+to have stalled shortly thereafter.
+
