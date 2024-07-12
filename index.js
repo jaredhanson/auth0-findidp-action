@@ -20,18 +20,16 @@ const EXCHANGES = {
 exports.onExecutePostIdentifier = async (event, api) => {
   let address;
   
+  // Attempt to parse the identifer as an email address.
   try {
     address = new Address(event.transaction.identifier);
-    console.log(address);
   } catch (ex) {
+    // The identifer is not an email address.  Immediately return from the
+    // action, letting the Auth0 platform continue with default behavior.  Note
+    // that default behavior includes executing additional actions, which may
+    // handle other types of identifiers.
     return;
   }
-  
-  /*
-  return new Promise(function(resolve, reject) {
-    
-  })
-  */
   
   const client = new ManagementClient({
     domain: event.secrets.AUTH0_DOMAIN || event.request.hostname,
