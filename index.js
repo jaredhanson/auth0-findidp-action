@@ -31,6 +31,14 @@ exports.onExecutePostIdentifier = async (event, api) => {
     return;
   }
   
+  // Connect to the [Auth0 Mangement API][1] using the client credentials that
+  // have been added as [secrets][2].  It is [recommended][3] that a machine-to-
+  // machine application be created for this action with the following
+  // permissions: read:users, read:connections.
+  //
+  // [1]: https://auth0.com/docs/api/management/v2
+  // [2]: https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret
+  // [3]: https://community.auth0.com/t/how-can-i-use-the-management-api-in-actions/64947
   const client = new ManagementClient({
     domain: event.secrets.AUTH0_DOMAIN || event.request.hostname,
     clientId: event.secrets.AUTH0_CLIENT_ID,
