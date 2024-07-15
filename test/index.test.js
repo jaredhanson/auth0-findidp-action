@@ -72,6 +72,8 @@ describe('auth0-findidp-action', function() {
           clientId: 's6BhdRkqt3',
           clientSecret: '7Fjfp0ZBr1KtDRbnfVdmIw'
         });
+        expect(client.usersByEmail.getByEmail).to.have.been.calledOnceWith({ email: 'alice@gmail.com' });
+        expect(client.connections.getAll).to.not.have.been.called;
         expect(dnsPromises.resolve).to.not.have.been.called;
         expect(api.setConnection).to.be.calledOnceWith('Username-Password-Authentication');
         done();

@@ -56,7 +56,7 @@ exports.onExecutePostIdentifier = async (event, api) => {
   // If the user already exists in the system, sign them in using the existing
   // authentication method.
   
-  var resp = await client.usersByEmail.getByEmail({ email: event.transaction.identifier });
+  var resp = await client.usersByEmail.getByEmail({ email: address.address() });
   var users = resp.data;
   if (users.length != 0) {
     api.setConnection(users[0].identities[0].connection);
