@@ -70,7 +70,15 @@ exports.onExecutePostIdentifier = async (event, api) => {
   var connections = resp.data;
   //console.log(connections);
   
-  var connection = connections.find((e) => e.options && e.options.domain_aliases && e.options.domain_aliases.includes(address.host));
+  // If the domain matches that of a domain [associated with an enterprise
+  // connection][1], direct the user to that connection in order to sign in.
+  // This is typically used in [business-to-business][2] (B2B) scenarios.  This
+  // preserves the default Auth0 platform behavior, so that use of this action
+  // doesn't have unexpected impact.
+  //
+  // [1]: https://auth0.com/docs/authenticate/login/auth0-universal-login/identifier-first#define-home-realm-discovery-identity-providers
+  // [2]: https://auth0.com/docs/get-started/architecture-scenarios/business-to-business/authentication
+  var connection = connections.find((c) => c.options && c.options.domain_aliases && c.options.domain_aliases.includes(address.host));
   if (connection) {
     api.setConnection(connection.name);
     return;

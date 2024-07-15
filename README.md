@@ -35,7 +35,7 @@ encourage passwords or other site-specific credentials.   Work email addresses
 will often federate with a corporate IDP, but require administrative
 configuration before doing so.
 
-This project continues to effort to push identifier first flows as far as
+This project continues the effort to push identifier first flows as far as
 possible, in an attempt to achive both maximum usability and maximum security.
 It runs as an Auth0 Action, so the flow can be deployed by any application using
 Auth0 for authentication.
