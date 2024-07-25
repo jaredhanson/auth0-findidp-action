@@ -4,11 +4,18 @@ const dns = require('dns').promises;
 
 
 const EXCHANGES = {
+  // MX records for gmail.com
+  // As reported by `dig gmail.com MX`
   'gmail-smtp-in.l.google.com': 'google-oauth2',
   'alt1.gmail-smtp-in.l.google.com': 'google-oauth2',
   'alt2.gmail-smtp-in.l.google.com': 'google-oauth2',
   'alt3.gmail-smtp-in.l.google.com': 'google-oauth2',
   'alt4.gmail-smtp-in.l.google.com': 'google-oauth2',
+  // MX record for Google Workspace (Current version, 2023 and later)
+  // https://support.google.com/a/answer/174125#zippy=%2Cgoogle-workspace-current-version-later
+  'smtp.google.com': 'google-oauth2',
+  // MX records for Google Workspace (Legacy version, before 2023)
+  // https://support.google.com/a/answer/174125#zippy=%2Cgoogle-workspace-legacy-version-before
   'aspmx.l.google.com': 'google-oauth2',
   'alt1.aspmx.l.google.com': 'google-oauth2',
   'alt2.aspmx.l.google.com': 'google-oauth2',
